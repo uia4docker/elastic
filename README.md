@@ -1,7 +1,7 @@
 Elastic Meets Docker
 ===
 
-* [Elasticsearch](Elasticsearch.md)
+* [Elasticsearch](tree/master/elasticsearch)
 
 * Logstash
 
