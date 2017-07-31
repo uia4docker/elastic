@@ -42,11 +42,11 @@ node.ingest: ${ES_NODE_INGEST}
 #
 # Path to directory where to store the data (separate multiple locations by comma):
 #
-#path.data: /home/elasticsearch/data
+path.data: /home/elastic/elasticsearch/data
 #
 # Path to log files:
 #
-#path.logs: /home/elasticsearch/logs
+path.logs: /home/elastic/elasticsearch/logs
 #
 # ----------------------------------- Memory -----------------------------------
 #

@@ -40,4 +40,4 @@ if [ -z "$ES_NETWORK_HOST" ]; then
     export ES_NETWORK_HOST=$HOSTNAME
 fi  
 
-exec bin/elasticsearch -Epath.conf=/etc/elasticsearch "${es_opts[@]}"
+exec bin/elasticsearch "${es_opts[@]}"

@@ -2,21 +2,22 @@ FROM uiarch/jre:8
 
 MAINTAINER Kyle K. Lin <gazer.kanlin@gmail.com>
 
-# SETUP elasticsearch repo.
-ADD elasticsearch.repo /etc/yum.repos.d/elasticsearch.repo
+# Create user
+RUN adduser elastic -m
 
-# INSTALL elasticsearch
-RUN rpm --import http://packages.elastic.co/GPG-KEY-elasticsearch; \
-    yum -y install elasticsearch-5.5.0; \
-    yum -y clean all; \
-    chown -R elasticsearch:elasticsearch \
-        /etc/elasticsearch \
-        /usr/share/elasticsearch
+# Download, install
+RUN set -x \
+    && cd /opt \
+    && curl https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.0.tar.gz > elasticsearch-5.5.0.tar.gz \
+    && tar -xzf elasticsearch-5.5.0.tar.gz \
+    && chown -R elastic:elastic /opt/elasticsearch-5.5.0 \
+    && rm -r elasticsearch-5.5.0.tar.gz
 
-# COPY configurtion file
-COPY elasticsearch.yml /etc/elasticsearch/
-
-# SETUP elasticsearch ENV.
+RUN set -x \
+    && mkdir /home/elastic/elasticsearch /home/elastic/elasticsearch/logs /home/elastic/elasticsearch/data \
+    && chown -R elastic:elastic /home/elastic/elasticsearch
+        
+ENV PATH /opt/elasticsearch-5.5.0/bin:$PATH
 
 ENV ES_CLUSTER_NAME=cluster1 \
     ES_NODE_NAME=node1 \
@@ -27,24 +28,18 @@ ENV ES_CLUSTER_NAME=cluster1 \
     ES_ZEN_UNICAST_HOSTS="" \
     ES_ZEN_MIN_MASTER_NODES=1
 
-# SETUP PATH
-ENV PATH /usr/share/elasticsearch/bin:$PATH
+# Swtich user
+USER elastic
 
-# SETUP working directory
-WORKDIR /usr/share/elasticsearch
+# Setup environment
+COPY elasticsearch.yml /opt/elasticsearch-5.5.0/config
+COPY docker-entrypoint /opt/elasticsearch-5.5.0/docker-entrypoint
 
-# COPY es-docker
-COPY es-docker es-docker
+# Setup working directory
+WORKDIR /opt/elasticsearch-5.5.0
 
-# CHANGE es-docker owner & group
-RUN chown elasticsearch:elasticsearch es-docker; \
-    chmod 0750 es-docker
-    
-# SWITCH user
-USER elasticsearch
-
-# EXPORE ports
+# Expose ports
 EXPOSE 9200 9300
-
-# RUN es-docker
-CMD ["/bin/bash", "./es-docker"]
+    
+# Run
+CMD ["/bin/bash", "./docker-entrypoint"]
